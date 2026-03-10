@@ -1,9 +1,17 @@
 # This program will ask the user to give an IP and then validate if it is a private or public IP
 
-import re, ipaddress, pandas
+import re, ipaddress, pandas, requests, os, json
 import tkinter as tk
 from tkinter import filedialog
+from dotenv import load_dotenv
 
+load_dotenv()
+
+API_KEY = os.getenv("API_KEY")
+print(API_KEY)
+base_url = "https://api.abuseipdb.com/api/v2/check"
+
+    
 # This section prompts the user to select a file to parse for IPs
 
 root = tk.Tk()
@@ -14,7 +22,7 @@ file_path = filedialog.askopenfilename()
 # This section parses the csv data for IPs
 
 df = pandas.read_csv(file_path, dtype="object")
-df2 = df["Full Path"].str.findall(r"\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}")
+df2 = df["ip"].str.findall(r"\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}")
 content = df2.to_string()
 
 # This section is the regex string used to detect IP addresses that are passed to the "ipcheck" variable, it uses the findall method against the ipcheck vairable and stores it in the match vairable
@@ -35,11 +43,36 @@ try:
 except ipaddress.AddressValueError:
     pass
 
-print("These are all of the public IPs found " + str(public))
+addresses = public
 
-# Need to add support for parsing data from CSVs
+for address in addresses:
+   url = (f"{base_url}/{address}")
 
-# Need to loop through "public" list performing an API call on each element inside to AbuseIPDB
+querystring = {
+    "ipAddress": str(address)
+}
 
-# On each API call need to determine if there are malicious indicators and then determine what to do with detections (store in a file, print to screen, store in a var and do something else)
+headers = {
+    "Accept": "application/json",
+    "Key": str(API_KEY)
+}
+
+response = requests.request(method="GET", url=base_url, headers=headers, params=querystring)
+
+decodedResponse = json.loads(response.text)
+print(decodedResponse)
+
+if response.status_code == 200:
+    pass
+else:
+    print(f"Failed to retrieve data {response.status_code}")
+
+
+# Current issues: if pulled IP is private, it does not get stored in address and therefore causes NameError for some reason
+
+# Need to proper JSON parsing so that only the IP address, confidence score, domain, total reports and country code are returned 
+
+
+
+
 
