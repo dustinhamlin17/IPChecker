@@ -21,9 +21,13 @@ file_path = filedialog.askopenfilename()
 
 # This section parses the csv data for IPs
 
+print("Parsing data...")
+
 df = pandas.read_csv(file_path, dtype="object")
-df2 = df.str.findall(r"\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}")
-content = df2.to_string()
+df2 = df
+content = df2.iloc[:, 1:7].to_string()
+
+print("Extracting IPs...")
 
 # This section is the regex string used to detect IP addresses that are passed to the "ipcheck" variable, it uses the findall method against the ipcheck vairable and stores it in the match vairable
 
@@ -34,10 +38,12 @@ match = ip.findall(content)
 
 public = []
 
+print("Checking Database...")
+
 try:
-    for x in match:
-        if ipaddress.IPv4Address(x).is_global == True:
-            public.append(x)
+    for validaddresses in match:
+        if ipaddress.IPv4Address(validaddresses).is_global == True:
+            public.append(validaddresses)
         else:
             continue
 except ipaddress.AddressValueError:
@@ -74,7 +80,6 @@ else:
 
 # Would like to have it prompt the user to enter their API key in which it would store it temporarily until the program closes (or just have the user add a .env file in the folder with their API key)
 
-# Need to adjust line 25 so that it reads every header instead of a defined header
 
 
 
