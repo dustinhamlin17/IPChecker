@@ -22,7 +22,7 @@ file_path = filedialog.askopenfilename()
 # This section parses the csv data for IPs
 
 df = pandas.read_csv(file_path, dtype="object")
-df2 = df["ip"].str.findall(r"\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}")
+df2 = df.str.findall(r"\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}")
 content = df2.to_string()
 
 # This section is the regex string used to detect IP addresses that are passed to the "ipcheck" variable, it uses the findall method against the ipcheck vairable and stores it in the match vairable
@@ -48,19 +48,19 @@ addresses = public
 for address in addresses:
    url = (f"{base_url}/{address}")
 
-querystring = {
+   querystring = {
     "ipAddress": str(address)
 }
 
-headers = {
+   headers = {
     "Accept": "application/json",
     "Key": str(API_KEY)
 }
 
-response = requests.request(method="GET", url=base_url, headers=headers, params=querystring)
+   response = requests.request(method="GET", url=base_url, headers=headers, params=querystring)
 
-decodedResponse = json.loads(response.text)
-print(decodedResponse)
+   decodedResponse = json.loads(response.text)
+   print(decodedResponse)
 
 if response.status_code == 200:
     pass
@@ -72,7 +72,9 @@ else:
 
 # Need to proper JSON parsing so that only the IP address, confidence score, domain, total reports and country code are returned 
 
+# Would like to have it prompt the user to enter their API key in which it would store it temporarily until the program closes (or just have the user add a .env file in the folder with their API key)
 
+# Need to adjust line 25 so that it reads every header instead of a defined header
 
 
 
